@@ -1,22 +1,8 @@
 
-function buildBaseSchedule(trip, activities) {
-  var schedule = buildEmptySchedule(trip.dates);
-
-  for (var a in activities) {
-    if (activities[a]["dates"].length == 1) {
-      for (var d in activities[a]["dates"]) {
-        if (activities[a]["dates"][d].length == 1) {
-          schedule['activities'][] = a;
-          schedule['dates'][d]['activities'][] = a;
-          for(var t = activities[a]["dates"][d][0]["start"]; t <= activities[a]["dates"][d][0]["end"]; t += 0.5) {
-            schedule['dates'][d]['times'][t] = a;
-          }
-        }
-      }
-    }
-  }
-
-  return schedule;
+function planTrip(trip, activities) {
+  var schedules = buildSchedules(trip, activities, buildEmptySchedule(trip['dates']));
+  alert(schedules.length + " Schedules Created.");
+  printSchedules(schedules, activities);
 }
 
 function buildEmptySchedule(dates) {
@@ -30,19 +16,23 @@ function buildEmptySchedule(dates) {
   return schedule;
 }
 
-function canFit(times, start, length, max) {
+function canFit(date, start, length, end, max_per_day) {
   var fit = true;
-
-  for (var t = 0; t <= length; t += 0.5) {
-    if ((start + t) > max || times[start + t] != 0) {
-      fit = false;
-      break(2);
+  
+  if (date['activities'].length() >= max_per_day) {
+    fit = false;
+  }
+  else {
+    for (var time =0; time <= length; time += 0.5) {
+      if ((start + t) > end || date['times'][start + time] != 0) {
+        fit = false;
+        break;
+      }
     }
   }
 
   return fit;
 }
-
 
 function buildSchedules(trip, activities, base) {
   var schedules = [];
@@ -55,13 +45,30 @@ function buildSchedules(trip, activities, base) {
         var start = group['start'] > trip['dates'][d]['start'] ? group['start'] : trip['dates'][d]['start'];
         var end = group['end'] < trip['dates'][d]['end'] ? group['end'] : trip['dates'][d]['end'];
         while (start <= (end - activity['length'])) {
-          var schedule = base;
-          if (canFit(schedule['dates'][d], start, activity['length'], end)) {
-            schedule = addToSchedule(schedule, d, start, activity['length'], a);
-            // Recurse.
+          if (canFit(base['dates'][d], start, activity['length'], end, trip['max_acts_per_day'])) {
+            var schedule = addToSchedule(a, start, activity['length'], d, base);
+            if (activities.length > 1) {
+               // Remove activity.
+              sub_activites = activities;
+              delete sub_activities[a]; 
+              // Build sub_schedules.
+              var sub_schedules = buildSchedules(trip, sub_activities, schedule);
+              if (sub_schedules.length > 0) {
+                schedules.concat(sub_schedules);
+              }
+            }
           }
           start += 0.5;
         }
+      }
+    }
+  }
+  // Remove schedules which do not have th right count of activities.
+  if (schedules.count > 0) {
+    var return_schedules = [];
+    for (var s in schedules) {
+      if (schedules[s]['activities'].length => activities.length) {
+        return_schedules.push(schedules[s]);
       }
     }
   }
@@ -69,6 +76,43 @@ function buildSchedules(trip, activities, base) {
   return schedules;
 }
 
+function addToSchedule(activity, start, length, date, schedule) {
+  for (var time =0; time <= length; time += 0.5) {
+    schedule['dates'][d]['times'][start + time] = activity;
+  }
+  schedule['activities'].push(activity);
+  schedule['dates'][d]['activities'].push(activity);
+  return schedule;
+}
 
-
+function printSchedules(schedules, activities) {
+  var csvContent = "data:text/csv;charset=utf-8,";
+  for (var s in schedules) {
+    var schedule = schedules[s];
+    var schedule_prep = {
+      "time" : []
+    };
+    for (var d in schedule['dates']) {
+      schedule_prep["time"].push(d);
+      for (var time in schedule['dates'][d]['times']) {
+        if (schedule_prep[time] === 'undefined' || schedule_prep[time] === null) {
+          schedule_prep[time] = [];
+        }
+        schedule_prep[time].push(schedule['dates'][d]['times'][time] == 0 ?  "" : activities[schedule['dates'][d]['times'][time]]["name"]);
+      }
+    }
+    
+    for (var r in schedule_prep) {
+      csvContent += r + "," + schedule_prep[r].join(",") + "\n";
+    }
+    
+    csvContent += "\n";
+  }
+  
+  var encodedUri = encodeURI(csvContent);
+  var link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "my_schedules.csv");
+  link.click();
+}
 
