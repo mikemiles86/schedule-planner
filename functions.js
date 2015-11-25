@@ -7,7 +7,7 @@ function planTrip(trip, activities) {
 
 function buildEmptySchedule(dates) {
   var schedule = {
-    "activities" : {},
+    "activities" : [],
     "dates" : {}
   };
   for(var d in dates) {
