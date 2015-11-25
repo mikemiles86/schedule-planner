@@ -23,7 +23,7 @@ function buildEmptySchedule(dates) {
 function canFit(date, start, length, end, max_per_day) {
   var fit = true;
   
-  if (date['activities'].length() >= max_per_day) {
+  if (date['activities'].length >= max_per_day) {
     fit = false;
   }
   else {
