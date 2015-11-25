@@ -82,10 +82,10 @@ function buildSchedules(trip, activities, base) {
 
 function addToSchedule(activity, start, length, date, schedule) {
   for (var time =0; time <= length; time += 0.5) {
-    schedule['dates'][d]['times'][start + time] = activity;
+    schedule['dates'][date]['times'][start + time] = activity;
   }
   schedule['activities'].push(activity);
-  schedule['dates'][d]['activities'].push(activity);
+  schedule['dates'][date]['activities'].push(activity);
   return schedule;
 }
 
