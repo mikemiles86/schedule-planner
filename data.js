@@ -127,9 +127,9 @@ var activities = {
     "length" : 2,
     "dates" : {
       "saturday" : [{"start" : 10, "end" : 20}],
-      "sunday" : [{"start" : 10, "end : 20"}],
-      "monday" : [{"start" : 10, "end : 20"}],
-      "wednesday" : [{"start" : 10, "end : 20"}]
+      "sunday" : [{"start" : 10, "end" : 20}],
+      "monday" : [{"start" : 10, "end" : 20}],
+      "wednesday" : [{"start" : 10, "end" : 20}]
     }
   },
   "illuminade" : {
