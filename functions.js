@@ -67,7 +67,7 @@ function buildSchedules(trip, activities, base) {
   if (schedules.count > 0) {
     var return_schedules = [];
     for (var s in schedules) {
-      if (schedules[s]['activities'].length => activities.length) {
+      if (schedules[s]['activities'].length >= activities.length) {
         return_schedules.push(schedules[s]);
       }
     }
