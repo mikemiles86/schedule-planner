@@ -28,7 +28,7 @@ function canFit(date, start, length, end, max_per_day) {
   }
   else {
     for (var time =0; time <= length; time += 0.5) {
-      if ((start + t) > end || date['times'][start + time] != 0) {
+      if ((start + time) > end || date['times'][start + time] != 0) {
         fit = false;
         break;
       }
